@@ -27,7 +27,7 @@ namespace DataBaseProject.Data
             }
             catch(Exception ex)
             {
-                throw ex;
+                throw ex;//test
             }
         }
 
