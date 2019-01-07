@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DataBaseProject.Data;
+using DataBaseProject.Business;
 using DataBaseProject.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataBaseProject.Web.Controllers
@@ -13,18 +9,27 @@ namespace DataBaseProject.Web.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
+        private DataService DbService = new DataService(Environment.CurrentDirectory + "/DataBaseFiles/student_data.txt");
+
         // GET: api/Student
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(DataBaseActions.GetAllData(new Student()));
+            return Ok(DbService.GetAllData());
         }
 
         // GET: api/Student/5
         [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
+        public IActionResult Get(string id)
         {
-            return "value";
+            try
+            {
+                return Ok(DbService.FindById(id));
+            }
+            catch(Exception exception)
+            {
+                return NotFound(exception);
+            }
         }
 
         // POST: api/Student
@@ -33,7 +38,7 @@ namespace DataBaseProject.Web.Controllers
         {
             try
             {
-                DataBaseActions.Save(newStudent);
+                DbService.Save(newStudent);
                 return Created("", null);
             }
             catch(Exception ex)
@@ -44,14 +49,31 @@ namespace DataBaseProject.Web.Controllers
 
         // PUT: api/Student/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult Put(string id, [FromBody]Student editStudent)
         {
+            try
+            {
+                return Ok(DbService.Edit(id, editStudent));
+            }
+            catch(Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(string id)
         {
+            try
+            {
+                DbService.DeleteDataById(id);
+                return Ok();
+            }
+            catch(Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
     }
 }
