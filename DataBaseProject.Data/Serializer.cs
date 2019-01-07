@@ -18,10 +18,9 @@ namespace DataBaseProject.Data
 
         public static void SerializeCollection(string filePath, ICollection<IDataObject> dataCollection)
         {
-            FileStream fileStream = null;
+            FileStream fileStream = StreamManager.CreateFileStream(filePath, FileMode.Append);
             try
             {
-                fileStream = new FileStream(filePath, FileMode.Append);
                 foreach (var data in dataCollection)
                 {
                     binaryFormatter.Serialize(fileStream, data);
@@ -33,18 +32,16 @@ namespace DataBaseProject.Data
             }
             finally
             {
-                if (fileStream != null) fileStream.Close();
+                StreamManager.CloseFileStream(fileStream);
             }
         }
 
         public static void SerializeData(string filePath, IDataObject data)
         {
-            FileStream fileStream = null;
             if (data == null) throw new Exception("Cannot store a null value.");
+            FileStream fileStream = StreamManager.CreateFileStream(filePath, FileMode.Append);
             try
             {
-                if (!File.Exists(filePath)) File.Create(filePath);
-                fileStream = new FileStream(filePath, FileMode.Append);
                 binaryFormatter.Serialize(fileStream, data);
             }
             catch (SerializationException exception)
@@ -53,17 +50,16 @@ namespace DataBaseProject.Data
             }
             finally
             {
-                if (fileStream != null) fileStream.Close();
+                StreamManager.CloseFileStream(fileStream);
             }
         }
 
         public static ICollection<IDataObject> DeserializeCollection(string filePath)
         {
-            FileStream fileStream = null;
+            FileStream fileStream = StreamManager.CreateFileStream(filePath, FileMode.OpenOrCreate);
             try
             {
                 if (!File.Exists(filePath)) return new List<IDataObject>();
-                fileStream = new FileStream(filePath, FileMode.Open);
                 var dataCollection = new List<IDataObject>();
                 while (fileStream.Position < fileStream.Length)
                 {
@@ -77,17 +73,15 @@ namespace DataBaseProject.Data
             }
             finally
             {
-                if (fileStream != null) fileStream.Close();
+                StreamManager.CloseFileStream(fileStream);
             }
         }
 
         public static IDataObject DeserializeDataById(string filePath, string id)
         {
-            FileStream fileStream = null;
+            FileStream fileStream = StreamManager.CreateFileStream(filePath, FileMode.OpenOrCreate);
             try
             {
-                if (!File.Exists(filePath)) return null;
-                fileStream = new FileStream(filePath, FileMode.Open);
                 IDataObject searchedData = null;
                 while (fileStream.Position < fileStream.Length && searchedData == null)
                 {
@@ -102,7 +96,7 @@ namespace DataBaseProject.Data
             }
             finally
             {
-                if (fileStream != null) fileStream.Close();
+                StreamManager.CloseFileStream(fileStream);
             }
         }
 
